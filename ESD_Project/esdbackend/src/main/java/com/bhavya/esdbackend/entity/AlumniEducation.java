@@ -1,5 +1,6 @@
 package com.bhavya.esdbackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import jakarta.validation.constraints.NotNull;
@@ -22,7 +23,7 @@ public class AlumniEducation {
 
     @ManyToOne
     @JoinColumn(name = "alumni_id", nullable = false)
-    @JsonIgnoreProperties
+    @JsonBackReference
     private Alumni alumni;
 
     @NotNull

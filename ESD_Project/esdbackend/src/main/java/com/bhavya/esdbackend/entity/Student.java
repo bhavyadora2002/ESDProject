@@ -1,5 +1,6 @@
 package com.bhavya.esdbackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import com.fasterxml.jackson.annotation.JsonManagedReference;
 import jakarta.persistence.*;
@@ -45,9 +46,9 @@ public class Student {
 
         private Integer placementId;
 
-//        @OneToOne(mappedBy = "student", cascade = CascadeType.ALL)
-//        @JsonIgnoreProperties
-//        private Alumni alumni;
+        @OneToOne(mappedBy = "student", cascade = CascadeType.ALL)
+        @JsonBackReference
+        private Alumni alumni;
 
 
     }

@@ -5,10 +5,8 @@ import com.bhavya.esdbackend.dto.AlumniEducationRequest;
 import com.bhavya.esdbackend.dto.AlumniOrganisationRequest;
 import com.bhavya.esdbackend.dto.LoginRequest;
 
-import com.bhavya.esdbackend.entity.Alumni;
-import com.bhavya.esdbackend.entity.AlumniCredentials;
-import com.bhavya.esdbackend.entity.AlumniEducation;
-import com.bhavya.esdbackend.entity.AlumniOrganisation;
+import com.bhavya.esdbackend.dto.OrganisationRequest;
+import com.bhavya.esdbackend.entity.*;
 import com.bhavya.esdbackend.exception.ResourceNotFoundException;
 import com.bhavya.esdbackend.helper.EncryptionService;
 import com.bhavya.esdbackend.helper.JWTHelper;
@@ -16,18 +14,18 @@ import com.bhavya.esdbackend.mapper.AlumniMapper;
 import com.bhavya.esdbackend.mapper.EducationMapper;
 
 import com.bhavya.esdbackend.mapper.OrganisationMapper;
-import com.bhavya.esdbackend.repo.AlumniCredRepo;
-import com.bhavya.esdbackend.repo.AlumniOrgRepo;
-import com.bhavya.esdbackend.repo.AlumniRepo;
-import com.bhavya.esdbackend.repo.AlumniEducationRepo;
+import com.bhavya.esdbackend.repo.*;
 import jakarta.validation.Valid;
 import lombok.RequiredArgsConstructor;
 import org.springframework.beans.factory.annotation.Autowired;
 import org.springframework.http.ResponseEntity;
 import org.springframework.stereotype.Service;
 
+import java.util.List;
+import java.util.Map;
 import java.util.Optional;
 import java.util.UUID;
+import java.util.stream.Collectors;
 
 import static java.lang.String.format;
 
@@ -50,56 +48,71 @@ public class AlumniService {
     private final OrganisationMapper orgmapper;
     private final EncryptionService encryptionService;
     private final JWTHelper jwtHelper;
+    @Autowired
+    private OrganisationRepo organisationRepo;
 
-    public String login(LoginRequest request) {
+
+    public Map<String,Object> login(LoginRequest request) {
         AlumniCredentials r = mapper.loginEntity(request);
         String email = r.getEmail();
         String password = r.getPassword();
         AlumniCredentials cred = alumniCredRepo.findByEmail(email)
                 .orElseThrow(() -> new ResourceNotFoundException("No credentials found for email: " + request.email()));
-//        if (cred.getPassword().equals(password)) {
-//            return "Login successful";
-//        }
-//        return "Login failed";
+
+
         if(!encryptionService.validates(password, cred.getPassword())) {
-            return "Wrong Password or Email";
+            throw new IllegalArgumentException("Wrong Password or Email");
         }
-        return jwtHelper.generateToken(request.email());
+        Alumni a = alumniRepo.getAlumniByEmail(email);
+        System.out.println(a.getAlumniId());
+        return Map.of(
+                "token", jwtHelper.generateToken(request.email()),
+                "id", a.getAlumniId()
+        );
 
     }
-//
-//    public String login(@Valid LoginRequest request) {
-//        Customer customer = mapper.loginEntity(request);
-//        String email = customer.getEmail();
-//        String password = customer.getPassword();
-//        Customer cust = repo.findByEmail(email);
-////        if (password.equals(cust.getPassword())) {
-////            return "Logged in";
-////        }
-////        else {
-////            return "Wrong password";
-////        }
-//        if(!encryptionService.validates(password, cust.getPassword())) {
-//            return "Wrong Password or Email";
-//        }
-//        return jwtHelper.generateToken(request.email());
-//
-//    }
-//
-    public Alumni updateContactInfo(Long id, String newContactNumber, String newEmail) {
+
+    public Map<String, String> getContactInfo(Long id) {
+        Alumni alumni = alumniRepo.findById(id)
+                .orElseThrow(() -> new ResourceNotFoundException("Alumni not found with Id: " + id));
+        return Map.of(
+                "email", alumni.getEmail(),
+                "contactNumber", alumni.getContactNumber()
+        );
+    }
+
+    public Map<String, String> updateContactInfo(Long id, String newContactNumber, String newEmail) {
         System.out.println("updating email");
         Alumni alumni = alumniRepo.findById(id)
                 .orElseThrow(() -> new ResourceNotFoundException("Alumni not found with Id: " + id));
 
-            System.out.println("updating email");
+            System.out.println(newEmail);
             alumni.setEmail(newEmail);
             System.out.println("updating email");
             alumni.setContactNumber(newContactNumber);
         alumniRepo.save(alumni);
-        return alumni;
+        return Map.of(
+                "email", alumni.getEmail(),
+                "contactNumber", alumni.getContactNumber()
+        );
     }
 
-    public AlumniEducation updateEducationQualification(Integer educationId, AlumniEducationRequest request ) {
+    public Map<String, Object> getEducationQualification(Integer alumniId) {
+
+        AlumniEducation e = alumniEducationRepository.findByAlumni_AlumniId(alumniId);
+
+        return Map.of(
+                "degree", e.getDegree(),
+                "passing_year", e.getPassingYear(),
+                "joining_year",e.getJoiningYear(),
+                "college_name", e.getCollegeName(),
+                "address",e.getAddress()
+        );
+    }
+
+    public Map<String, Object> updateEducationQualification(Integer alumniId, AlumniEducationRequest request ) {
+        AlumniEducation e = alumniEducationRepository.findByAlumni_AlumniId(alumniId);
+        Integer educationId = e.getEducationId();
         AlumniEducation alumniEducation = alumniEducationRepository.findById(educationId)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid education ID"));
         AlumniEducation r = edumapper.eduEntity(request);
@@ -113,20 +126,29 @@ public class AlumniService {
             alumniEducation.setCollegeName(r.getCollegeName());
         if(r.getAddress()!=null)
             alumniEducation.setAddress(r.getAddress());
-
-        return alumniEducationRepository.save(alumniEducation);
+        alumniEducationRepository.save(alumniEducation);
+         return Map.of(
+                "degree", alumniEducation.getDegree(),
+                "passing_year", alumniEducation.getPassingYear(),
+                 "joining_year",alumniEducation.getJoiningYear(),
+                 "college_name", alumniEducation.getCollegeName(),
+                 "address",alumniEducation.getAddress()
+        );
     }
 
     public ResponseEntity<String> saveAlumniOrganisation(@Valid AlumniOrganisationRequest request) {
         AlumniOrganisation r = orgmapper.orgEntity(request);
         alumniOrgRepo.save(r);
-        return ResponseEntity.ok("Organisation updated successfully");
+        return ResponseEntity.ok("Organisation created successfully");
     }
 
     public ResponseEntity<String> updateAlumniOrganisation(Integer id, @Valid AlumniOrganisationRequest request) {
         AlumniOrganisation alumniOrganisation = alumniOrgRepo.findById(id)
                 .orElseThrow(() -> new IllegalArgumentException("Invalid work ID"));
         AlumniOrganisation r = orgmapper.orgEntity(request);
+        if(r.getOrganisation()!=null){
+            alumniOrganisation.setOrganisation(r.getOrganisation());
+        }
         if(r.getPosition()!=null){
             alumniOrganisation.setPosition(r.getPosition());
         }
@@ -148,4 +170,21 @@ public class AlumniService {
             return ResponseEntity.ok("Entry not found");        }
     }
 
+
+    public ResponseEntity<List<AlumniOrganisation>> getAlumniOrganisationsByAlumniId(Integer alumniId) {
+        List<AlumniOrganisation> l = alumniOrgRepo.findByAlumni_AlumniId(alumniId);
+        return ResponseEntity.ok(l);
+    }
+
+    public List<OrganisationRequest> getallOrg() {
+        List<Organisation> organisations = organisationRepo.findAll();
+        return organisations.stream()
+                .map(org -> new OrganisationRequest(org.getOrganisationId(), org.getName())) // Mapping to DTO
+                .collect(Collectors.toList());
+    }
+
+    public ResponseEntity<AlumniOrganisation> getAlumniOrganisationsByOrgId(Integer orgId) {
+        AlumniOrganisation al = alumniOrgRepo.findById(orgId).orElseThrow(() -> new IllegalArgumentException("Invalid education ID"));;
+        return ResponseEntity.ok(al);
+    }
 }

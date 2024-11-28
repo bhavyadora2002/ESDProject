@@ -1,5 +1,7 @@
 package com.bhavya.esdbackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
+import com.fasterxml.jackson.annotation.JsonIgnoreProperties;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -19,10 +21,12 @@ public class AlumniOrganisation {
 
     @ManyToOne
     @JoinColumn(name = "alumni_id", nullable = false)
+    @JsonBackReference
     private Alumni alumni;
 
     @ManyToOne(cascade = CascadeType.PERSIST)
     @JoinColumn(name = "organisation_id", nullable = false)
+    @JsonIgnoreProperties("AlumniOrganisation")
     private Organisation organisation;
 
 

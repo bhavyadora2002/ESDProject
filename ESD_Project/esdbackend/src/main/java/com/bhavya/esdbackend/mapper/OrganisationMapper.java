@@ -15,7 +15,11 @@ public class OrganisationMapper {
     private OrganisationRepo organisationRepository;
 
     public AlumniOrganisation orgEntity(AlumniOrganisationRequest request) {
-        Organisation organisation = organisationRepository.findById(request.orgnisation())
+        if(request.organisation() == null) {
+            System.out.println("request is null");
+        }
+        System.out.println(request);
+        Organisation organisation = organisationRepository.findById(request.organisation())
                     .orElseThrow(() -> new RuntimeException("Organisation not found"));
 
         return AlumniOrganisation.builder()

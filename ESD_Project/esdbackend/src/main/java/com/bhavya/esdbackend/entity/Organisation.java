@@ -1,4 +1,5 @@
 package com.bhavya.esdbackend.entity;
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -25,6 +26,7 @@ public class Organisation {
     private String address;
 
     @OneToMany(mappedBy = "organisation", cascade = CascadeType.ALL)
+    @JsonBackReference
     private java.util.List<AlumniOrganisation> alumniOrganisations;
 
 }

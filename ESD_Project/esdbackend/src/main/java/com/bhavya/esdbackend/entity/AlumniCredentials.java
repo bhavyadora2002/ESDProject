@@ -1,5 +1,6 @@
 package com.bhavya.esdbackend.entity;
 
+import com.fasterxml.jackson.annotation.JsonBackReference;
 import jakarta.persistence.*;
 import lombok.AllArgsConstructor;
 import lombok.Builder;
@@ -27,6 +28,7 @@ public class AlumniCredentials {
     private String password;
 
     @OneToOne
+    @JsonBackReference
     @JoinColumn(name = "email", referencedColumnName = "email", insertable = false, updatable = false)
     private Alumni alumni;
 

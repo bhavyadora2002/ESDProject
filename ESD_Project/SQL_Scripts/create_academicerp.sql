@@ -24,7 +24,7 @@ CREATE TABLE alumni (
 
 CREATE TABLE alumni_education (
     education_id INT AUTO_INCREMENT PRIMARY KEY,
-    alumni_id INT NOT NULL, 
+    alumni_id INT NOT NULL UNIQUE, 
     degree VARCHAR(100),
     passing_year INT,
     joining_year INT,

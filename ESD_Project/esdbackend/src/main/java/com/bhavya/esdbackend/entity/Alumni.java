@@ -28,20 +28,20 @@ public class Alumni {
 
     @OneToOne
     @JoinColumn(name = "student_id", unique = true)
-    @JsonIgnoreProperties
+    @JsonIgnoreProperties("Alumni")
     private Student student;
 
     @OneToOne(mappedBy = "alumni", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties
+    @JsonIgnoreProperties("Alumni")
     private AlumniCredentials alumniCredentials;
 
     @OneToMany(mappedBy = "alumni", cascade = CascadeType.ALL, orphanRemoval = true)
-    @JsonIgnoreProperties
+    @JsonIgnoreProperties("Alumni")
     private List<AlumniEducation> educationDetails;
 
 
     @OneToMany(mappedBy = "alumni", cascade = CascadeType.ALL)
-    @JsonIgnoreProperties
+    @JsonIgnoreProperties("Alumni")
     private java.util.List<AlumniOrganisation> workHistory;
 
 }

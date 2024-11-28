@@ -7,8 +7,8 @@ public record AlumniOrganisationRequest(
         @JsonProperty("alumni_id")
         Integer alumni,
 
-        @JsonProperty("orgnisation_id")
-        Integer orgnisation,
+        @JsonProperty("organisation_id")
+        Integer organisation,
 
         @JsonProperty("position")
         String position,

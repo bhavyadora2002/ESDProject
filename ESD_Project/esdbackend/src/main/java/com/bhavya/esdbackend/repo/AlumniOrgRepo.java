@@ -4,6 +4,8 @@ import com.bhavya.esdbackend.entity.AlumniEducation;
 import com.bhavya.esdbackend.entity.AlumniOrganisation;
 import org.springframework.data.jpa.repository.JpaRepository;
 
+import java.util.List;
+
 public interface AlumniOrgRepo extends JpaRepository<AlumniOrganisation, Integer> {
-    // You can define custom query methods if needed
+    List<AlumniOrganisation> findByAlumni_AlumniId(Integer alumniId);
 }

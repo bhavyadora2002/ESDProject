@@ -11,9 +11,9 @@ VALUES
 ('suhas.puli@gmail.com', '9876543211', 2),
 ('varun.raj@gmail.com', '9876543212', 3);
 
-INSERT INTO alumni_education (alumni_id, degree, passing_year, joining_year, college_name, address)
-VALUES
-(1, 'B.Tech in Computer Science', 2021, 2017, 'IIITB', 'Bangalore'),
+    INSERT INTO alumni_education (alumni_id, degree, passing_year, joining_year, college_name, address)
+    VALUES
+    (1, 'B.Tech in Computer Science', 2021, 2017, 'IIITB', 'Bangalore'),
 (2, 'B.Tech in Computer Science', 2020, 2016, 'IIITB', 'Bangalore'),
 (3, 'B.Tech in Computer Science', 2022, 2018, 'IIITB', 'Bangalore');
 
